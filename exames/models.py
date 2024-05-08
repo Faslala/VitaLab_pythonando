@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
 
 class TiposExames(models.Model):
     tipo_choices = (
@@ -31,9 +32,19 @@ class SolicitacaoExames(models.Model):
     def __str__(self):
         return f'{self.usuario} | {self.exame.nome}'
     
+    def badge_template(self):
+        if self.status == 'E':
+            classes_css = 'bg-warning text-dark'
+            texto = "Em análise"
+        elif self.status == 'F':
+            classes_css = 'bg-success'
+            texto = "Finalizado"
+        
+        return mark_safe(f"<span class='badge bg-primary {classes_css}'>{texto}</span>")
+    
 class PedidosExames(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    exame = models.ManyToManyField(SolicitacaoExames)
+    exames = models.ManyToManyField(SolicitacaoExames)
     agendado = models.BooleanField(default=True)
     data = models.DateField()
     
